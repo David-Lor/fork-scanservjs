@@ -140,3 +140,22 @@ RUN apt-get update \
   && dpkg -i /tmp/brscan4.deb \
   && rm /tmp/brscan4.deb \
   && echo brscan4 >> /etc/sane.d/dll.conf
+
+# epsonscan2 image
+#
+# This image adds the EPSON scanner libs to the image. This target is not built by
+# default - you will need to specifically target it.
+#
+# TODO: Currently only supporting amd64. Detect the architecture and download
+# other available builds from https://support.epson.net/linux/en/epsonscan2.php
+# ==============================================================================
+FROM scanservjs-core AS scanservjs-epsonscan2
+RUN apt-get update \
+  && apt-get install -yq curl \
+  && curl -fSsL https://download3.ebz.epson.net/dsc/f/03/00/17/08/12/9f3fec0ae80aa5c36f5170377ebcc38c93251e23/epsonscan2-bundle-6.7.80.0.x86_64.deb.tar.gz -o /tmp/epsonscan2.tar.gz \
+  && tar -xf /tmp/epsonscan2.tar.gz -C /tmp \
+  && /tmp/epsonscan2-bundle-6.7.80.0.x86_64.deb/install.sh \
+  && rm -rf /tmp/epsonscan2* \
+  && apt-get -yq purge curl \
+  && apt-get -yq clean \
+  && rm -rf /var/lib/apt/lists/*
