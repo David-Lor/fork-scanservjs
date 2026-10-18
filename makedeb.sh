@@ -75,7 +75,7 @@ Version: $VERSION
 Section: utils
 Priority: optional
 Architecture: all
-Depends: adduser, nodejs, imagemagick, sane-utils
+Depends: adduser, nodejs (>= 12), imagemagick, sane-utils
 Recommends: sane-airscan, ipp-usb, tesseract-ocr, tesseract-ocr-ara, tesseract-ocr-ces, tesseract-ocr-deu, tesseract-ocr-eng, tesseract-ocr-spa, tesseract-ocr-fra, tesseract-ocr-ita, tesseract-ocr-nld, tesseract-ocr-pol, tesseract-ocr-por, tesseract-ocr-rus, tesseract-ocr-tur, tesseract-ocr-chi-sim
 Maintainer: Sam Strachan <info@sbs20.com>
 Description: Web-based UI for SANE
@@ -116,11 +116,24 @@ if [ "\$1" = "configure" ] ; then
   # Set permissions
   chown -R $USER:$GROUP $PATH_RUNTIME
 
-  # Enable PDF
-  sed -i 's/policy domain="coder" rights="none" pattern="PDF"/policy domain="coder" rights="read | write" pattern="PDF"'/ /etc/ImageMagick-6/policy.xml
+  if [ -d /etc/ImageMagick-6 ]; then
+    # Enable PDF
+    sed -i 's/policy domain="coder" rights="none" pattern="PDF"/policy domain="coder" rights="read | write" pattern="PDF"'/ /etc/ImageMagick-6/policy.xml
 
-  # Avoid out of memory issues with large or multipage scans
-  sed -i 's/policy domain="resource" name="disk" value="1GiB"/policy domain="resource" name="disk" value="8GiB"'/ /etc/ImageMagick-6/policy.xml
+    # Avoid out of memory issues with large or multipage scans
+    sed -i 's/policy domain="resource" name="disk" value="1GiB"/policy domain="resource" name="disk" value="8GiB"'/ /etc/ImageMagick-6/policy.xml
+  fi
+
+  if [ -d /etc/ImageMagick-7 ]; then
+    # Enable PDF - should be a no-op but just in case
+    sed -i 's/policy domain="coder" rights="none" pattern="PDF"/policy domain="coder" rights="read | write" pattern="PDF"'/ /etc/ImageMagick-7/policy.xml
+
+    # Avoid out of memory issues with large or multipage scans
+    sed -i 's/policy domain="resource" name="disk" value="2GiB"/policy domain="resource" name="disk" value="8GiB"'/ /etc/ImageMagick-7/policy.xml
+
+    # Allow indirect reads
+    sed -i 's/policy domain="path" rights="none" pattern="@/policy domain="path" rights="read" pattern="@'/ /etc/ImageMagick-7/policy.xml
+  fi
 fi
 
 # systemd updates
