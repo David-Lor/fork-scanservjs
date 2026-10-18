@@ -9,7 +9,7 @@
 
 ![screenshot](https://github.com/sbs20/scanservjs/raw/master/docs/screen0.jpg)
 
-Copyright 2016-2023 [Sam Strachan](https://github.com/sbs20)
+Copyright 2016-2026 [Sam Strachan](https://github.com/sbs20)
 
 ## What people are saying
 
@@ -109,6 +109,10 @@ It supports any
 * [Testing](docs/60-testing.md)
 * [References](docs/90-references.md)
 * [QNAP](docs/91-qnap.md)
+
+### External resources
+
+* [External resources](docs/99-external.md)
 
 ## Running scanservjs
 

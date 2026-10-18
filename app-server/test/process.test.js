@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 const assert = require('assert');
 const CmdBuilder = require('../src/classes/command-builder');
 const Process = require('../src/classes/process');
@@ -10,8 +9,7 @@ describe('Process', () => {
   });
 
   it('echo-security', async () => {
-    let result = null;
-    result = await Process.execute(new CmdBuilder('echo').arg('-n', 'hello" && ls -al;# world').build());
+    let result = await Process.execute(new CmdBuilder('echo').arg('-n', 'hello" && ls -al;# world').build());
     assert.strictEqual(result, 'hello" && ls -al;# world');
 
     result = await Process.execute(new CmdBuilder('echo').arg('-n', '`ls -al`').build());
@@ -78,6 +76,12 @@ describe('Process', () => {
     ];
     const pdf = await Process.chain(cmds);
     assert.strictEqual(pdf.length > 4000, true);
+  });
+
+  it('does not crash on EPIPE when writing to stdin of a process that exits early', async () => {
+    // ls does not read from stdin, so passing stdin should trigger EPIPE, but it should be caught/ignored and not crash the process.
+    const hugeBuffer = Buffer.alloc(10 * 1024 * 1024, 'a');
+    await Process.spawn('ls', hugeBuffer);
   });
 
 });

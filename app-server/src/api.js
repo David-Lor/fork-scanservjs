@@ -20,6 +20,7 @@ module.exports = new class Api {
     const dir = FileInfo.create(config.outputDirectory);
     let files = await dir.list();
     files = files
+      .filter(file => !file.isDirectory)
       .sort((f1, f2) => f2.lastModified - f1.lastModified);
     log.trace(LogFormatter.format().full(files));
     return files;
@@ -43,14 +44,17 @@ module.exports = new class Api {
    * Runs an action on a file
    * @param {string} actionName
    * @param {string} fileName
+   * @param {Object.<string, string>} [headers] - HTTP headers of the request
+   * which triggered the action (e.g. identity headers set by an upstream
+   * reverse proxy). Passed through as-is to the action's execute function.
    * @returns {Promise.<any>}
    */
-  async fileAction(actionName, fileName) {
+  async fileAction(actionName, fileName, headers) {
     const fileInfo = FileInfo.unsafe(config.outputDirectory, fileName);
     if (!fileInfo.exists()) {
       throw new Error(`File '${fileName}' does not exist`);
     }
-    await application.userOptions().action(actionName).execute(fileInfo);
+    await application.userOptions().action(actionName).execute(fileInfo, headers);
   }
 
   /**

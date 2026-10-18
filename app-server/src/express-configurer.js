@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const basicAuth = require('express-basic-auth');
 const fs = require('fs');
 const path = require('path');
@@ -82,7 +83,7 @@ const EndpointSpecs = [
     callback: async (req, res) => {
       const fileName = req.params[0];
       const actionName = req.params[1];
-      await api.fileAction(actionName, fileName);
+      await api.fileAction(actionName, fileName, req.headers);
       res.send('200');
     }
   },
@@ -107,12 +108,12 @@ const EndpointSpecs = [
   },
   {
     method: 'delete',
-    path: '/api/v1/files/*',
+    path: /\/api\/v1\/files\/(.*)/,
     callback: async (req, res) => res.send(api.fileDelete(req.params[0]))
   },
   {
     method: 'put',
-    path: '/api/v1/files/*',
+    path: /\/api\/v1\/files\/(.*)/,
     callback: async (req, res) => {
       const name = req.params[0];
       const newName = req.body.newName;
@@ -163,7 +164,8 @@ module.exports = class ExpressConfigurer {
    */
   constructor(app) {
     this.app = app;
-
+    this.app.use(cors());
+    
     try {
       fs.mkdirSync(config.outputDirectory, { recursive: true });
       fs.mkdirSync(config.thumbnailDirectory, { recursive: true });
